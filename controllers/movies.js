@@ -21,7 +21,7 @@ const createMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
-    movieId
+    movieId,
   } = req.body;
   const owner = req.user._id;
   Movie.create({
@@ -36,7 +36,8 @@ const createMovie = (req, res, next) => {
     nameEN,
     thumbnail,
     movieId,
-    owner })
+    owner,
+  })
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -59,7 +60,7 @@ const deleteMovie = (req, res, next) => {
       } else {
         movie.remove()
           .then(() => {
-            res.send({ message: 'Фильм удалена' });
+            res.send({ message: 'Фильм удален' });
           })
           .catch(next);
       }
@@ -72,8 +73,6 @@ const deleteMovie = (req, res, next) => {
       }
     });
 };
-
-
 
 module.exports = {
   getMovies, createMovie, deleteMovie,

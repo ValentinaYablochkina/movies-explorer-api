@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-
-const regex = /^(https?):\/\/?(\www\.)?([a-z0-9-]+)\.([a-z0-9-]{2,6})\/?((\.?\/?[a-z0-9-_]+)*)\/?/m;
+const validator = require('validator');
 
 const {
   getMovies,
@@ -17,18 +16,33 @@ router.post('/', celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().pattern(regex),
-    trailerLink: Joi.string().required().pattern(regex),
+    image: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле image заполнено некорректно');
+    }),
+    trailerLink: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле trailerLink заполнено некорректно');
+    }),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
-    thumbnail: Joi.string().required().pattern(regex),
+    thumbnail: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле thumbnail заполнено некорректно');
+    }),
     movieId: Joi.number().required(),
   }),
 }), createMovie);
 
 router.delete('/:movieId', celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().hex(),
+    movieId: Joi.string().hex().length(24),
   }),
 }), deleteMovie);
 

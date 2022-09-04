@@ -25,10 +25,9 @@ const getUser = (req, res, next) => {
     .catch(next);
 };
 
-
 const createUser = (req, res, next) => {
   const {
-    email, password, name
+    email, password, name,
   } = req.body;
   bcrypt.hash(password, SALT_ROUNDS)
     .then((hash) => {
@@ -69,7 +68,7 @@ const login = (req, res, next) => {
 };
 
 const updateUserProfile = (req, res, next) => {
-  User.findOneAndUpdate(
+  User.findByIdAndUpdate(
     req.user._id,
     { name: req.body.name, email: req.body.email },
     { runValidators: true, new: true },
@@ -83,12 +82,13 @@ const updateUserProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Введены некорректные данные'));
+      } else if (err.code === 11000) {
+        next(new ConflictErr('Пользователь с данным email уже существует'));
       } else {
         next(err);
       }
     });
 };
-
 
 module.exports = {
   getUser,
